@@ -25,11 +25,11 @@ const {
   getUsersInRoom,
   getOtherUser,
 } = require("./utils/users");
-const { shuffle } = require("./utils/misc");
+const { shuffle, altShuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
 
 const wordList1 = require("./words/wordBank.json").words;
-const wordList2 = require("./words/wordBank.json").words;
+const wordList2 = require("./words/wordBank2.json").words;
 shuffle(wordList1);
 shuffle(wordList2);
 
@@ -159,3 +159,5 @@ io.on("connection", (socket) => {
 
   socket.emit("connection", null);
 });
+
+console.log(wordList1, wordList2);
