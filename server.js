@@ -25,7 +25,7 @@ const {
   getUsersInRoom,
   getOtherUser,
 } = require("./utils/users");
-const { shuffle, altShuffle } = require("./utils/misc");
+const { shuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
 
 const wordList1 = require("./words/wordBank.json").words;
@@ -42,6 +42,9 @@ const PORT = 8080;
 
 http.listen(PORT, () => {
   console.log(`listening on *:${PORT}`);
+});
+app.get("/", (req, res) => {
+  res.send("hi");
 });
 
 io.on("connection", (socket) => {
@@ -76,6 +79,7 @@ io.on("connection", (socket) => {
     io.to(user.room).emit("wordList", {
       wordList1,
       wordList2,
+      username: user.username,
     });
   });
   // socket.on("typing", ({ text }, callback) => {

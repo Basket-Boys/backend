@@ -2,6 +2,7 @@ const users = [];
 
 //addUser
 const addUser = ({ id, username, room }) => {
+  const playerReady = false;
   username = username.trim().toLowerCase();
   room = room.trim().toLowerCase();
   //Validate data
@@ -30,7 +31,7 @@ const addUser = ({ id, username, room }) => {
     player = 2;
   }
   //Store user
-  const user = { id, username, room, player };
+  const user = { id, username, room, player, playerReady };
   users.push(user);
   return {
     user,
@@ -64,16 +65,32 @@ const getOtherUser = (id) => {
   return undefined;
 };
 
+const readyUser = (username) => {
+  const index = users.findIndex((user) => user.username === username);
+  if (index !== -1) {
+    users[index].playerReady = true;
+  }
+};
+
 //getUsersInRoom
 const getUsersInRoom = (room) => {
   room = room.trim().toLowerCase();
   return (usersInRoom = users.filter((user) => user.room === room));
 };
 
+const getReadyUsersInRoom = (room, username) => {
+  room = room.trim().toLowerCase();
+  return (usersInRoom = users.filter(
+    (user) => user.room === room && playerReady
+  ));
+};
+
 module.exports = {
   addUser,
   removeUser,
   getUser,
+  readyUser,
   getOtherUser,
   getUsersInRoom,
+  getReadyUsersInRoom,
 };
