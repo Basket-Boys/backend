@@ -64,17 +64,18 @@ io.on("connection", (socket) => {
     socket.join(user.room);
     // socket.broadcast.to(room).emit() < Let the other user know that someone has joined.
     const usersInRoom = getUsersInRoom(user.room);
-    if (usersInRoom.length == 2) {
-      io.to(user.room).emit("wordList", {
-        wordList1,
-        wordList2,
-      });
-    }
     io.to(user.room).emit("roomData", {
       room: user.room,
       users: usersInRoom,
     });
     callback();
+  });
+
+  socket.on("ready", () => {
+    io.to(user.room).emit("wordList", {
+      wordList1,
+      wordList2,
+    });
   });
   // socket.on("typing", ({ text }, callback) => {
   //   const user = getUser(socket.id);
