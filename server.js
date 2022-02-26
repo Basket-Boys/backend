@@ -94,7 +94,7 @@ io.on("connection", (socket) => {
     const user = getUser(socket.id);
     if (combo % maxCombo === 0) {
       io.to(user.room).emit("spoofed", {
-        spoofedUser: user.player === 1 ? 2 : 1,
+        spoofedUserPlayer: user.player === 1 ? 2 : 1,
         spoofedWords: combo % maxCombo,
       });
     }
