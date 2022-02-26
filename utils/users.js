@@ -21,11 +21,12 @@ const addUser = ({ id, username, room }) => {
   }
   // If 2 people are already in a room:
   let player = 1;
-  if (users.length == 2) {
+  roomUsers = users.filter((user) => user.room === room);
+  if (roomUsers.length == 2) {
     return {
       error: "There are already two people in this room! Create another room.",
     };
-  } else if (users.length == 1) {
+  } else if (roomUsers.length == 1) {
     player = 2;
   }
   //Store user
