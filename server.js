@@ -55,10 +55,12 @@ io.on("connection", (socket) => {
       room = makeID();
     }
     if (!username) {
-      username = "anonymous_".concat(
+      username = "anonymous".concat(
         Math.floor(Math.random() * 100).toString()
       );
     }
+    
+    console.log(username, room);
 
     const { error, user } = addUser({ id: socket.id, username, room });
     if (error) {
@@ -68,9 +70,7 @@ io.on("connection", (socket) => {
     // socket.broadcast.to(room).emit() < Let the other user know that someone has joined.
     io.to(user.room).emit("roomData", {
       room: user.room,
-      users: getUsersInRoom(user.room),
-      p1W1: wordlist1,
-      p2W2: wordlist2,
+      users: getUsersInRoom(user.room)
     });
     callback();
   });
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
   socket.on("getSpoofed", ({ combo }) => {
     maxCombo = 5;
     const user = getUser(socket.id);
-    if (combo % maxCombo === 0 && otherUser) {
+    if (combo % maxCombo === 0) {
       io.to(user.room).emit("spoofed", {
         spoofedUser: user.player === 1 ? 2 : 1,
         spoofedWords: combo % maxCombo,
@@ -103,11 +103,11 @@ io.on("connection", (socket) => {
   // win or lose condition
   // Listen: condHandle
   // Emit: win
-  socket.on("condHandle", ({ Loss }) => {
-    if (Loss) {
+  socket.on("condHandle", ({ loss }) => {
+    if (loss) {
       const loser = getUser(socket.id);
       io.to(loser.room).emit("win", {
-        loser: loser.player,
+        loser,
       });
     }
   });
@@ -115,9 +115,9 @@ io.on("connection", (socket) => {
   // To display the list of words on the opponent's end
   // Listen: displayList
   // Emit: displayList
-  socket.on("displayList", (wordlist) => {
+  socket.on("displayList", (wordList) => {
     const user = getOtherUser(socket.id);
-    io.to(user.room).emit("displayList", { wordlist, user });
+    io.to(user.room).emit("displayList", { wordList, user });
   });
 
   // To get opponent's mistakes
@@ -125,15 +125,15 @@ io.on("connection", (socket) => {
   // Emit: mistakeCount
   socket.on("mistakeCount", (mistakeCount) => {
     const user = getOtherUser(socket.id);
-    io.to(user.room).emit("displayList", { mistakeCount, user });
+    io.to(user.room).emit("mistakeCount", { mistakeCount, user });
   });
 
   // To pass the flag array
-  // Listen: sendFlagAr
-  // Emit: sendFlagAr
-  socket.on("sendFlagAr", (flagAr) => {
+  // Listen: sendFlagArr
+  // Emit: sendFlagArr
+  socket.on("sendFlagArr", (flagArr) => {
     const user = getOtherUser(socket.id);
-    io.to(user.room).emit("sendFlagAr", { flagAr, user });
+    io.to(user.room).emit("sendFlagArr", { flagArr, user });
   });
 
   // To pass the blockage word indices
