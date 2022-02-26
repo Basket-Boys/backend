@@ -7,6 +7,7 @@ const {
   getUsersInRoom,
 } = require("./utils/users");
 const { shuffle } = require("./utils/misc");
+const { makeID } = require("./utils/rooms");
 
 const wordlist1 = require("./words/common.json").commonWords;
 const wordlist2 = require("./words/common2.json").commonWords;
@@ -29,7 +30,16 @@ http.listen(PORT, () => {
 io.on("connection", (socket) => {
   // Everything goes into here
   console.log("New Client Connected");
+  socket.on("generateRoom", ({username, room}, callback) => {
+  });
   socket.on("join", ({ username, room }, callback) => {
+    if (!room) {
+      room = makeID();
+    }
+    if (!username) {
+      username = "anonymous_".concat((Math.floor(Math.random() * 100).toString()));
+    }
+
     const { error, user } = addUser({ id: socket.id, username, room });
     if (error) {
       return callback(error);
@@ -53,7 +63,29 @@ io.on("connection", (socket) => {
       });
     }
   });
-  socket.on("completedWord", () => {});
+
+  // spoof opponent based on combo achieved
+  socket.on("getSpoofed", ({ combo }) => {
+    maxCombo = 5;
+    const user = getUser(socket.id);
+    if (combo % maxCombo === 0 && otherUser) {
+      io.to(user.room).emit("spoofed", {
+        spoofedUser: user.player === 1 ? 2 : 1,
+        spoofedWords: combo % maxCombo,
+      });
+    }
+  });
+
+  // win or lose condition
+  socket.on("condHandle", ({ Loss }) => {
+    if (Loss) {
+      const loser = getUser(socket.id);
+      io.to(loser.room).emit("win", {
+        loser: loser.player,
+      })
+    }
+  })
+
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
     if (user) {
