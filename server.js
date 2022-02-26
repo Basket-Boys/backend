@@ -9,10 +9,12 @@ const {
 const { shuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
 
-const wordlist1 = require("./words/common.json").commonWords;
-const wordlist2 = require("./words/common2.json").commonWords;
+const wordlist1 = require("./words/wordBank.json").words;
+const wordlist2 = require("./words/wordBank.json").words;
 shuffle(wordlist1);
 shuffle(wordlist2);
+
+
 
 // SOURCE: https://github.com/dariusk/corpora/blob/master/data/words/common.json
 
@@ -49,7 +51,7 @@ io.on("connection", (socket) => {
     io.to(user.room).emit("roomData", {
       room: user.room,
       users: getUsersInRoom(user.room),
-      p1Wl: wordlist1,
+      p1W1: wordlist1,
       p2W2: wordlist2,
     });
     callback();
