@@ -159,5 +159,3 @@ io.on("connection", (socket) => {
 
   socket.emit("connection", null);
 });
-
-console.log(wordList1, wordList2);
