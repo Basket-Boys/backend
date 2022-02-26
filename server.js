@@ -28,10 +28,10 @@ const {
 const { shuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
 
-const wordlist1 = require("./words/wordBank.json").words;
-const wordlist2 = require("./words/wordBank.json").words;
-shuffle(wordlist1);
-shuffle(wordlist2);
+const wordList1 = require("./words/wordBank.json").words;
+const wordList2 = require("./words/wordBank.json").words;
+shuffle(wordList1);
+shuffle(wordList2);
 
 // SOURCE: https://github.com/dariusk/corpora/blob/master/data/words/common.json
 
@@ -49,18 +49,13 @@ http.listen(PORT, () => {
 io.on("connection", (socket) => {
   // Everything goes into here
   console.log("New Client Connected");
-  socket.on("generateRoom", ({ username, room }, callback) => {});
   socket.on("join", ({ username, room }, callback) => {
     if (!room) {
       room = makeID();
     }
     if (!username) {
-      username = "anonymous".concat(
-        Math.floor(Math.random() * 100).toString()
-      );
+      username = "anonymous".concat(Math.floor(Math.random() * 100).toString());
     }
-    
-    console.log(username, room);
 
     const { error, user } = addUser({ id: socket.id, username, room });
     if (error) {
@@ -68,9 +63,16 @@ io.on("connection", (socket) => {
     }
     socket.join(user.room);
     // socket.broadcast.to(room).emit() < Let the other user know that someone has joined.
+    const usersInRoom = getUsersInRoom(user.room);
+    if (usersInRoom.length == 2) {
+      io.to(user.room).emit("wordList", {
+        wordList1,
+        wordList2,
+      });
+    }
     io.to(user.room).emit("roomData", {
       room: user.room,
-      users: getUsersInRoom(user.room)
+      users: usersInRoom,
     });
     callback();
   });
@@ -95,7 +97,7 @@ io.on("connection", (socket) => {
     if (combo % maxCombo === 0) {
       io.to(user.room).emit("spoofed", {
         spoofedUserPlayer: user.player === 1 ? 2 : 1,
-        spoofedWords: combo % maxCombo,
+        spoofedWords: combo / maxCombo,
       });
     }
   });
