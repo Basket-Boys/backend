@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     callback();
   });
 
-  socket.on("ready", (player) => {
+  socket.on("ready", () => {
     const user = getUser(socket.id);
     io.to(user.room).emit("wordList", {
         wordList1,
