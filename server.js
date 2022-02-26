@@ -71,12 +71,17 @@ io.on("connection", (socket) => {
     callback();
   });
 
-  socket.on("ready", () => {
+  socket.on("ready", (player) => {
     const user = getUser(socket.id);
-    io.to(user.room).emit("wordList", {
-      wordList1,
-      wordList2,
-    });
+    if (player === 1) {
+      io.to(user.room).emit("wordList", {
+        wordList1,
+      });
+    } else if (player == 2) {
+      io.to(user.room).emit("wordList", {
+        wordList2,
+      });
+    }
   });
   // socket.on("typing", ({ text }, callback) => {
   //   const user = getUser(socket.id);
