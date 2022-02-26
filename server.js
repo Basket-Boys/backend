@@ -28,6 +28,9 @@ const {
 const { shuffle, altShuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
 
+const wordList1 = require("./words/wordBank.json").words;
+const wordList2 = require("./words/wordBank2.json").words;
+
 // SOURCE: https://github.com/dariusk/corpora/blob/master/data/words/common.json
 
 // CORS FUCK
@@ -68,8 +71,6 @@ io.on("connection", (socket) => {
 
   socket.on("ready", () => {
     const user = getUser(socket.id);
-    const wordList1 = require("./words/wordBank.json").words;
-    const wordList2 = require("./words/wordBank2.json").words;
     shuffle(wordList1);
     shuffle(wordList2);
     io.to(user.room).emit("wordList", {
