@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
     callback();
   });
 
-  socket.on("ready", (player) => {
+  socket.on("ready", () => {
     const user = getUser(socket.id);
     const wordList1 = require("./words/wordBank.json").words;
     const wordList2 = require("./words/wordBank2.json").words;
