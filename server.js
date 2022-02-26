@@ -72,6 +72,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("ready", () => {
+    const user = getUser(socket.id);
     io.to(user.room).emit("wordList", {
       wordList1,
       wordList2,
