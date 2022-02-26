@@ -1,3 +1,21 @@
+// Emit:
+// join
+// getSpoofed
+// condHandle
+// displayList
+// mistakeCount
+// sendFlagAr
+// sendBlockageIndex
+
+// Listen:
+// roomData
+// spoofed
+// win
+// displayList
+// mistakeCount
+// sendFlagAr
+// sendBlockageIndex
+
 const app = require("express")();
 const http = require("http").createServer(app);
 const {
@@ -5,6 +23,7 @@ const {
   removeUser,
   getUser,
   getUsersInRoom,
+  getOtherUser,
 } = require("./utils/users");
 const { shuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
@@ -13,8 +32,6 @@ const wordlist1 = require("./words/wordBank.json").words;
 const wordlist2 = require("./words/wordBank.json").words;
 shuffle(wordlist1);
 shuffle(wordlist2);
-
-
 
 // SOURCE: https://github.com/dariusk/corpora/blob/master/data/words/common.json
 
@@ -32,14 +49,15 @@ http.listen(PORT, () => {
 io.on("connection", (socket) => {
   // Everything goes into here
   console.log("New Client Connected");
-  socket.on("generateRoom", ({username, room}, callback) => {
-  });
+  socket.on("generateRoom", ({ username, room }, callback) => {});
   socket.on("join", ({ username, room }, callback) => {
     if (!room) {
       room = makeID();
     }
     if (!username) {
-      username = "anonymous_".concat((Math.floor(Math.random() * 100).toString()));
+      username = "anonymous_".concat(
+        Math.floor(Math.random() * 100).toString()
+      );
     }
 
     const { error, user } = addUser({ id: socket.id, username, room });
@@ -56,17 +74,21 @@ io.on("connection", (socket) => {
     });
     callback();
   });
-  socket.on("typing", ({ text }, callback) => {
-    const user = getUser(socket.id);
-    if (user) {
-      io.to(user.room).emit("typeResponse", {
-        ptext: text,
-        player: user.player,
-      });
-    }
-  });
+  // socket.on("typing", ({ text }, callback) => {
+  //   const user = getUser(socket.id);
+  //   if (user) {
+  //     io.to(user.room).emit("typeResponse", {
+  //       ptext: text,
+  //       player: user.player,
+  //     });
+  //   }
+  // });
+
+  // ======================================= LISTEN =====================================
 
   // spoof opponent based on combo achieved
+  // Listen: getSpoofed
+  // Emit: spoofed
   socket.on("getSpoofed", ({ combo }) => {
     maxCombo = 5;
     const user = getUser(socket.id);
@@ -79,15 +101,50 @@ io.on("connection", (socket) => {
   });
 
   // win or lose condition
+  // Listen: condHandle
+  // Emit: win
   socket.on("condHandle", ({ Loss }) => {
     if (Loss) {
       const loser = getUser(socket.id);
       io.to(loser.room).emit("win", {
         loser: loser.player,
-      })
+      });
     }
-  })
+  });
 
+  // To display the list of words on the opponent's end
+  // Listen: displayList
+  // Emit: displayList
+  socket.on("displayList", (wordlist) => {
+    const user = getOtherUser(socket.id);
+    io.to(user.room).emit("displayList", { wordlist, user });
+  });
+
+  // To get opponent's mistakes
+  // Listen: mistakeCount
+  // Emit: mistakeCount
+  socket.on("mistakeCount", (mistakeCount) => {
+    const user = getOtherUser(socket.id);
+    io.to(user.room).emit("displayList", { mistakeCount, user });
+  });
+
+  // To pass the flag array
+  // Listen: sendFlagAr
+  // Emit: sendFlagAr
+  socket.on("sendFlagAr", (flagAr) => {
+    const user = getOtherUser(socket.id);
+    io.to(user.room).emit("sendFlagAr", { flagAr, user });
+  });
+
+  // To pass the blockage word indices
+  // Listen: sendBlockageIndex
+  // Emit: sendBlockageIndex
+  socket.on("sendBlockageIndex", (blockageWordIndexes) => {
+    const user = getOtherUser(socket.id);
+    io.to(user.room).emit("sendBlockageIndex", { blockageWordIndexes, user });
+  });
+
+  // Disconnects when user exits - auto, nothing to be done.
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
     if (user) {
@@ -97,7 +154,6 @@ io.on("connection", (socket) => {
       });
     }
   });
+
   socket.emit("connection", null);
 });
-
-// TODO: GET POINT SYSTEM, WORDLIST,

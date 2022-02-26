@@ -54,6 +54,15 @@ const getUser = (id) => {
   return undefined;
 };
 
+//getOtherUser
+const getOtherUser = (id) => {
+  const index = users.findIndex((user) => user.id !== id);
+  if (index !== -1) {
+    return users[index];
+  }
+  return undefined;
+};
+
 //getUsersInRoom
 const getUsersInRoom = (room) => {
   room = room.trim().toLowerCase();
@@ -64,5 +73,6 @@ module.exports = {
   addUser,
   removeUser,
   getUser,
+  getOtherUser,
   getUsersInRoom,
 };
