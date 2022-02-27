@@ -25,11 +25,7 @@ const {
   getUsersInRoom,
   getOtherUser,
 } = require("./utils/users");
-const { shuffle } = require("./utils/misc");
 const { makeID } = require("./utils/rooms");
-
-const wordList1 = require("./words/wordBank.json").words;
-const wordList2 = require("./words/wordBank2.json").words;
 
 // SOURCE: https://github.com/dariusk/corpora/blob/master/data/words/common.json
 
@@ -38,7 +34,7 @@ const io = require("socket.io")(http, {
   cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 http.listen(PORT, () => {
   console.log(`listening on *:${PORT}`);
@@ -72,16 +68,6 @@ io.on("connection", (socket) => {
     callback();
   });
 
-  socket.on("ready", () => {
-    const user = getUser(socket.id);
-    shuffle(wordList1);
-    shuffle(wordList2);
-    io.to(user.room).emit("wordList", {
-      wordList1,
-      wordList2,
-      username: user.username,
-    });
-  });
   // socket.on("typing", ({ text }, callback) => {
   //   const user = getUser(socket.id);
   //   if (user) {
